@@ -1,0 +1,83 @@
+from flask import Flask, jsonify
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+
+from app.config import Config
+
+db = SQLAlchemy()
+migrate = Migrate()
+jwt = JWTManager()
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per hour"],
+    storage_uri="memory://",
+)
+
+
+def create_app(config_object: type[Config] | None = None) -> Flask:
+    app = Flask(__name__)
+    cfg = config_object or Config
+    app.config.from_object(cfg)
+    storage_uri = getattr(cfg, "RATELIMIT_STORAGE_URI", None) or "memory://"
+    if not str(storage_uri).startswith(("memory://", "redis://", "rediss://")):
+        storage_uri = "memory://"
+    app.config["RATELIMIT_STORAGE_URI"] = storage_uri
+
+    db.init_app(app)
+    migrate.init_app(app, db)
+    jwt.init_app(app)
+    CORS(app, resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}}, supports_credentials=True)
+    limiter.init_app(app)
+    # Re-bind storage after config is known (avoids accidental REDIS_URL pickup).
+    try:
+        limiter._storage_uri = storage_uri
+        from limits import parse_storage_uri as _parse
+
+        limiter._storage = _parse(storage_uri)
+    except Exception:
+        limiter._storage_uri = "memory://"
+
+    from app import models  # noqa: F401
+    from app.routes import register_blueprints
+
+    register_blueprints(app)
+
+    @app.get("/api/health")
+    def health():
+        return jsonify(
+            {
+                "status": "ok",
+                "payments": "yookassa" if Config().yookassa_enabled else "mock",
+                "currency": "RUB",
+            }
+        )
+
+    @app.errorhandler(400)
+    def bad_request(err):
+        return jsonify({"error": getattr(err, "description", "bad_request")}), 400
+
+    @app.errorhandler(401)
+    def unauthorized(err):
+        return jsonify({"error": "unauthorized"}), 401
+
+    @app.errorhandler(403)
+    def forbidden(err):
+        return jsonify({"error": "forbidden"}), 403
+
+    @app.errorhandler(404)
+    def not_found(err):
+        return jsonify({"error": "not_found"}), 404
+
+    @app.errorhandler(429)
+    def rate_limited(err):
+        return jsonify({"error": "rate_limited", "message": str(err.description)}), 429
+
+    @app.errorhandler(500)
+    def server_error(err):
+        return jsonify({"error": "server_error"}), 500
+
+    return app

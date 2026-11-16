@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fashion
+      POSTGRES_PASSWORD: fashion
+      POSTGRES_DB: fashion_store
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fashion -d fashion_store"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./fashion-store/backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://fashion:fashion@db:5432/fashion_store
+      REDIS_URL: redis://redis:6379/0
+      BACKEND_URL: http://localhost:5000
+      FRONTEND_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:3000
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "flask db upgrade && python seed.py && gunicorn -b 0.0.0.0:5000 -w 2 'run:app'"
+
+  frontend:
+    build:
+      context: ./fashion-store/frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:5000/api
+        NEXT_PUBLIC_STORE_NAME: ATELIER
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

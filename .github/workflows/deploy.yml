@@ -1,0 +1,64 @@
+name: Build and Deploy Skeleton
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  backend-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fashion-store/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Import app + seed (sqlite)
+        env:
+          SECRET_KEY: ci-secret
+          JWT_SECRET_KEY: ci-jwt
+          DATABASE_URL: sqlite:///ci.db
+        run: |
+          python -c "from app import create_app; create_app()"
+          python seed.py
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: fashion-store/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: fashion-store/frontend/package.json
+      - name: Install & build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:5000/api
+          NEXT_PUBLIC_STORE_NAME: ATELIER
+        run: |
+          npm install
+          npm run build
+
+  # Deploy job is a skeleton — wire secrets + host when ready.
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [backend-check, frontend-build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder deploy
+        run: |
+          echo "Deploy skeleton. Configure SSH/Docker registry secrets:"
+          echo "  DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY"
+          echo "Then: docker compose -f docker-compose.yml pull && up -d"
