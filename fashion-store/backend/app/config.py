@@ -18,7 +18,12 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or "sqlite:///fashion_store.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+    # pool_pre_ping helps PostgreSQL; SQLite works fine without a special pool.
+    SQLALCHEMY_ENGINE_OPTIONS = (
+        {"pool_pre_ping": True}
+        if not (os.getenv("DATABASE_URL") or "sqlite").startswith("sqlite")
+        else {}
+    )
 
     # Leave empty for in-memory rate limits (no Redis required on Windows/dev).
     REDIS_URL = (os.getenv("REDIS_URL") or "").strip()
