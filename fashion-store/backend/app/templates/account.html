@@ -14,8 +14,8 @@
         </div>
         <p class="mt-2 text-sm">{{ fmt_rub(o.total_rub) }}</p>
         <p class="mt-1 text-xs text-muted">
-          {% if o.delivery_type == 'wb_pvz' %}
-            ПВЗ WB{% if o.pvz_meta and o.pvz_meta.address %}: {{ o.pvz_meta.address }}{% elif o.shipping_address %}: {{ o.shipping_address }}{% endif %}
+          {% if o.delivery_type in ['yandex_pvz', 'wb_pvz'] %}
+            ПВЗ Яндекс Маркет{% if o.pvz_meta and o.pvz_meta.address %}: {{ o.pvz_meta.address }}{% elif o.shipping_address %}: {{ o.shipping_address }}{% endif %}
           {% else %}
             {{ o.shipping_city }}, {{ o.shipping_address }}
           {% endif %}

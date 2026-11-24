@@ -73,11 +73,14 @@ class OrderService:
         total = subtotal - discount + shipping
 
         delivery_type = (payload.get("delivery_type") or "courier").strip()
-        if delivery_type not in ("courier", "wb_pvz"):
+        # yandex_pvz primary; wb_pvz kept as alias for old forms
+        if delivery_type == "wb_pvz":
+            delivery_type = "yandex_pvz"
+        if delivery_type not in ("courier", "yandex_pvz"):
             abort(400, description="invalid_delivery_type")
         pvz_id = payload.get("pvz_id")
         pvz_meta = payload.get("pvz_meta")
-        if delivery_type == "wb_pvz" and not pvz_id:
+        if delivery_type == "yandex_pvz" and not pvz_id:
             abort(400, description="pvz_required")
 
         order = Order(

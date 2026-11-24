@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from app.services.wb_pvz import search_pvz
+from app.services.yandex_pvz import search_pvz
 
 bp = Blueprint("delivery", __name__)
 
@@ -8,8 +8,11 @@ bp = Blueprint("delivery", __name__)
 @bp.get("/pvz")
 def list_pvz():
     """
+    GET /api/delivery/pvz?city=Вологда
     GET /api/delivery/pvz?city=Москва
-    GET /api/delivery/pvz?lat=55.75&lon=37.62&limit=20
+    GET /api/delivery/pvz?lat=59.22&lon=39.89&limit=20
+
+    Primary: Yandex Market ПВЗ (Geosearch / Partner API if keys set, else seed).
     """
     city = (request.args.get("city") or "").strip() or None
     lat_raw = request.args.get("lat")

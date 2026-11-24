@@ -248,7 +248,7 @@ def checkout(user: User):
         "shipping_address": "",
         "shipping_postal": "",
         "coupon_code": "WELCOME10",
-        "delivery_type": "wb_pvz",
+        "delivery_type": "yandex_pvz",
         "pvz_id": "",
         "pvz_address": "",
         "pvz_work_time": "",
@@ -263,16 +263,18 @@ def checkout(user: User):
         return render_template("checkout.html", cart=cart_data, form=default_form)
 
     delivery_type = (request.form.get("delivery_type") or "courier").strip()
+    if delivery_type == "wb_pvz":
+        delivery_type = "yandex_pvz"
     pvz_id = (request.form.get("pvz_id") or "").strip()
     pvz_address = (request.form.get("pvz_address") or "").strip()
     shipping_city = (request.form.get("shipping_city") or "").strip()
     shipping_address = (request.form.get("shipping_address") or "").strip()
-    if delivery_type == "wb_pvz":
+    if delivery_type == "yandex_pvz":
         if not pvz_id or not pvz_address:
-            flash("Выберите пункт выдачи Wildberries", "error")
+            flash("Выберите пункт выдачи Яндекс Маркет", "error")
             form = {**default_form, **{k: request.form.get(k, "") for k in default_form}}
             return render_template("checkout.html", cart=cart_data, form=form)
-        shipping_address = f"ПВЗ Wildberries: {pvz_address}"
+        shipping_address = f"ПВЗ Яндекс Маркет: {pvz_address}"
 
     payload = {
         "shipping_name": (request.form.get("shipping_name") or "").strip(),
@@ -290,8 +292,9 @@ def checkout(user: User):
             "lat": (request.form.get("pvz_lat") or "").strip() or None,
             "lon": (request.form.get("pvz_lon") or "").strip() or None,
             "source": (request.form.get("pvz_source") or "").strip() or None,
+            "provider": "yandex_market",
         }
-        if delivery_type == "wb_pvz"
+        if delivery_type == "yandex_pvz"
         else None,
     }
     if not all(
