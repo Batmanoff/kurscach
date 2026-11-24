@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}" />
-  <link rel="icon" href="{{ url_for('static', filename='img/swaga-logo.svg') }}" type="image/svg+xml" />
+  <link rel="icon" href="{{ url_for('static', filename='img/swaga-mark.svg') }}" type="image/svg+xml" />
 </head>
 <body class="min-h-screen font-sans text-ink antialiased">
   <header class="site-header sticky top-0 z-40">
@@ -41,7 +41,7 @@
         <a class="nav-link" href="{{ url_for('web.cart') }}">Корзина{% if cart_count %} ({{ cart_count }}){% endif %}</a>
       </nav>
       <a href="{{ url_for('web.home') }}" class="absolute left-1/2 flex -translate-x-1/2 items-center gap-2" aria-label="{{ store_name }}">
-        <img src="{{ url_for('static', filename='img/swaga-logo.svg') }}" alt="{{ store_name }}" class="h-8 w-auto md:h-9" />
+        <img src="{{ url_for('static', filename='img/swaga-logo.svg') }}" alt="{{ store_name }}" class="h-8 w-auto md:h-9" width="160" height="36" />
       </a>
       <div class="ml-auto flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.18em]">
         {% if current_user and current_user.is_admin %}
@@ -76,7 +76,7 @@
   <footer class="mt-24 border-t-2 border-ink/10 bg-ink text-paper">
     <div class="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-3 md:px-8">
       <div>
-        <img src="{{ url_for('static', filename='img/swaga-logo.svg') }}" alt="{{ store_name }}" class="h-9 w-auto brightness-0 invert" />
+        <img src="{{ url_for('static', filename='img/swaga-logo-light.svg') }}" alt="{{ store_name }}" class="h-9 w-auto" width="168" height="38" />
         <p class="mt-4 max-w-xs text-sm text-paper/70">Спортивная одежда и кроссовки. Доставка в ПВЗ Яндекс Маркет. Оплата СБП.</p>
       </div>
       <div class="text-sm text-paper/70">
