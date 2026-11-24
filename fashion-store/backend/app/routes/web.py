@@ -46,7 +46,7 @@ def inject_globals():
     return {
         "current_user": user,
         "cart_count": cart_count,
-        "store_name": current_app.config.get("STORE_NAME", "ATELIER"),
+        "store_name": current_app.config.get("STORE_NAME", "BAST"),
         "fmt_rub": _fmt_rub,
         "payments_mode": "yookassa"
         if (current_app.config.get("YOOKASSA_SHOP_ID") and current_app.config.get("YOOKASSA_SECRET_KEY"))
@@ -103,13 +103,17 @@ def catalog():
 @bp.get("/product/<slug>")
 def product_detail(slug: str):
     product = Product.query.filter_by(slug=slug, is_published=True).first_or_404()
-    colors = sorted({v.color for v in product.variants})
+    swatches = product.color_swatches()
+    colors = [s["name"] for s in swatches]
     selected_color = request.args.get("color") or (colors[0] if colors else "")
+    if selected_color not in colors and colors:
+        selected_color = colors[0]
     sizes = [v for v in product.variants if v.color == selected_color]
     return render_template(
         "product.html",
         product=product,
         colors=colors,
+        swatches=swatches,
         selected_color=selected_color,
         sizes=sizes,
     )
@@ -134,7 +138,7 @@ def login():
         login_user(user)
         flash("С возвращением", "ok")
         return redirect(url_for("web.account"))
-    return render_template("login.html", email="demo@atelier.dev")
+    return render_template("login.html", email="")
 
 
 @bp.route("/register", methods=["GET", "POST"])
@@ -260,7 +264,12 @@ def checkout(user: User):
         if not cart_data["items"]:
             flash("Корзина пуста", "error")
             return redirect(url_for("web.catalog"))
-        return render_template("checkout.html", cart=cart_data, form=default_form)
+        return render_template(
+            "checkout.html",
+            cart=cart_data,
+            form=default_form,
+            yandex_maps_api_key=current_app.config.get("YANDEX_MAPS_API_KEY") or "",
+        )
 
     delivery_type = (request.form.get("delivery_type") or "courier").strip()
     if delivery_type == "wb_pvz":
@@ -273,7 +282,12 @@ def checkout(user: User):
         if not pvz_id or not pvz_address:
             flash("Выберите пункт выдачи Яндекс Маркет", "error")
             form = {**default_form, **{k: request.form.get(k, "") for k in default_form}}
-            return render_template("checkout.html", cart=cart_data, form=form)
+            return render_template(
+                "checkout.html",
+                cart=cart_data,
+                form=form,
+                yandex_maps_api_key=current_app.config.get("YANDEX_MAPS_API_KEY") or "",
+            )
         shipping_address = f"ПВЗ Яндекс Маркет: {pvz_address}"
 
     payload = {
@@ -307,7 +321,12 @@ def checkout(user: User):
     ):
         flash("Заполните данные доставки", "error")
         form = {**default_form, **{k: request.form.get(k, "") for k in default_form}}
-        return render_template("checkout.html", cart=cart_data, form=form)
+        return render_template(
+            "checkout.html",
+            cart=cart_data,
+            form=form,
+            yandex_maps_api_key=current_app.config.get("YANDEX_MAPS_API_KEY") or "",
+        )
     try:
         order = OrderService.create_from_cart(user, payload)
         OrderService.create_payment(order, user_email=user.email)

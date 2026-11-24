@@ -4,8 +4,8 @@
 <div class="mx-auto max-w-6xl px-5 py-12 md:px-8">
   <div class="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
     <div>
-      <p class="text-[11px] uppercase tracking-[0.2em] text-muted">Каталог</p>
-      <h1 class="mt-2 font-display text-4xl">Вся коллекция</h1>
+      <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-muted">Каталог</p>
+      <h1 class="mt-2 font-display text-5xl">Вся линейка</h1>
     </div>
     <form method="get" class="flex flex-wrap gap-3">
       {% if category_slug %}<input type="hidden" name="category" value="{{ category_slug }}" />{% endif %}
@@ -19,9 +19,9 @@
   </div>
 
   <div class="mb-8 flex flex-wrap gap-3">
-    <a class="text-[11px] uppercase tracking-[0.16em] {% if not category_slug %}text-ink{% else %}text-muted{% endif %}" href="{{ url_for('web.catalog') }}">Все</a>
+    <a class="text-[11px] font-bold uppercase tracking-[0.16em] {% if not category_slug %}text-ink border-b-2 border-accent{% else %}text-muted{% endif %}" href="{{ url_for('web.catalog') }}">Все</a>
     {% for c in categories %}
-      <a class="text-[11px] uppercase tracking-[0.16em] {% if category_slug==c.slug %}text-ink{% else %}text-muted{% endif %}"
+      <a class="text-[11px] font-bold uppercase tracking-[0.16em] {% if category_slug==c.slug %}text-ink border-b-2 border-accent{% else %}text-muted{% endif %}"
          href="{{ url_for('web.catalog', category=c.slug) }}">{{ c.name }}</a>
     {% endfor %}
   </div>

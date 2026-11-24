@@ -36,7 +36,7 @@ class Config:
     BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:5000")
     # Same origin as Flask Jinja UI by default (Next.js is optional).
     FRONTEND_URL = os.getenv("FRONTEND_URL", BACKEND_URL)
-    STORE_NAME = os.getenv("STORE_NAME", "ATELIER")
+    STORE_NAME = os.getenv("STORE_NAME", "BAST")
 
     YOOKASSA_SHOP_ID = os.getenv("YOOKASSA_SHOP_ID", "").strip()
     YOOKASSA_SECRET_KEY = os.getenv("YOOKASSA_SECRET_KEY", "").strip()
@@ -49,6 +49,9 @@ class Config:
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Admin123!")
     DEMO_EMAIL = os.getenv("DEMO_EMAIL", "demo@atelier.dev")
     DEMO_PASSWORD = os.getenv("DEMO_PASSWORD", "Demo123!")
+
+    # Optional browser Maps JS / Geosearch key (safe to expose as Maps JS client key)
+    YANDEX_MAPS_API_KEY = os.getenv("YANDEX_MAPS_API_KEY", "").strip()
 
     RATELIMIT_DEFAULT = os.getenv("RATELIMIT_DEFAULT", "120 per minute")
     RATELIMIT_AUTH = os.getenv("RATELIMIT_AUTH", "20 per minute")

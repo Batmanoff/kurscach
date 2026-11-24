@@ -10,36 +10,37 @@
       theme: {
         extend: {
           colors: {
-            ink: '#141414',
-            paper: '#F3EFE7',
-            mist: '#E6E1D6',
-            accent: '#1F3A34',
+            ink: '#0A0A0A',
+            paper: '#F2F2F0',
+            mist: '#E4E4E0',
+            accent: '#C8FF00',
+            signal: '#FF3B00',
             muted: '#6B6B6B',
           },
           fontFamily: {
-            display: ['Cormorant Garamond', 'Georgia', 'serif'],
-            sans: ['Manrope', 'Helvetica Neue', 'Arial', 'sans-serif'],
+            display: ['"Bebas Neue"', 'Impact', 'sans-serif'],
+            sans: ['"DM Sans"', 'Helvetica Neue', 'Arial', 'sans-serif'],
           },
-          letterSpacing: { brand: '0.28em' },
+          letterSpacing: { brand: '0.12em' },
         },
       },
     };
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/store.css') }}" />
 </head>
 <body class="min-h-screen font-sans text-ink antialiased">
-  <header class="sticky top-0 z-40 border-b border-ink/10 bg-paper/85 backdrop-blur">
-    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 md:px-8">
+  <header class="site-header sticky top-0 z-40">
+    <div class="relative mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 md:px-8">
       <nav class="hidden items-center gap-5 md:flex">
         <a class="nav-link" href="{{ url_for('web.catalog') }}">Каталог</a>
         <a class="nav-link" href="{{ url_for('web.favorites') }}">Избранное</a>
         <a class="nav-link" href="{{ url_for('web.cart') }}">Корзина{% if cart_count %} ({{ cart_count }}){% endif %}</a>
       </nav>
-      <a href="{{ url_for('web.home') }}" class="absolute left-1/2 -translate-x-1/2 font-display text-xl tracking-brand md:text-2xl">{{ store_name }}</a>
-      <div class="ml-auto flex items-center gap-4 text-[11px] uppercase tracking-[0.18em]">
+      <a href="{{ url_for('web.home') }}" class="brand-mark absolute left-1/2 -translate-x-1/2 tracking-brand">{{ store_name }}</a>
+      <div class="ml-auto flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.18em]">
         {% if current_user and current_user.is_admin %}
           <a class="text-muted hover:text-ink" href="{{ url_for('web.admin_panel') }}">Admin</a>
         {% endif %}
@@ -59,7 +60,7 @@
     {% if messages %}
       <div class="mx-auto max-w-6xl px-5 pt-4 md:px-8">
         {% for category, message in messages %}
-          <div class="mb-2 border px-4 py-3 text-sm {% if category == 'error' %}border-red-800/30 bg-red-50 text-red-900{% else %}border-accent/20 bg-white/60 text-accent{% endif %}">
+          <div class="mb-2 border-2 px-4 py-3 text-sm {% if category == 'error' %}border-signal/40 bg-white text-signal{% else %}border-ink/15 bg-white text-ink{% endif %}">
             {{ message }}
           </div>
         {% endfor %}
@@ -69,22 +70,22 @@
 
   <main class="min-h-[70vh]">{% block content %}{% endblock %}</main>
 
-  <footer class="mt-24 border-t border-ink/10">
+  <footer class="mt-24 border-t-2 border-ink/10">
     <div class="mx-auto grid max-w-6xl gap-8 px-5 py-14 md:grid-cols-3 md:px-8">
       <div>
-        <p class="font-display text-lg tracking-brand">{{ store_name }}</p>
-        <p class="mt-3 max-w-xs text-sm text-muted">Fashion e-commerce на Flask. Оплата СБП / ЮKassa{% if payments_mode == 'mock' %} (mock){% endif %}.</p>
+        <p class="brand-mark tracking-brand">{{ store_name }}</p>
+        <p class="mt-3 max-w-xs text-sm text-muted">Street &amp; sport. Доставка в ПВЗ Яндекс Маркет. Оплата СБП / ЮKassa{% if payments_mode == 'mock' %} (тест){% endif %}.</p>
       </div>
       <div class="text-sm text-muted">
-        <p class="mb-3 text-[11px] uppercase tracking-[0.18em] text-ink">Магазин</p>
-        <a class="block" href="{{ url_for('web.catalog') }}">Каталог</a>
-        <a class="block mt-2" href="{{ url_for('web.cart') }}">Корзина</a>
-        <a class="block mt-2" href="{{ url_for('web.account') }}">Заказы</a>
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-ink">Магазин</p>
+        <a class="block hover:text-ink" href="{{ url_for('web.catalog') }}">Каталог</a>
+        <a class="block mt-2 hover:text-ink" href="{{ url_for('web.cart') }}">Корзина</a>
+        <a class="block mt-2 hover:text-ink" href="{{ url_for('web.account') }}">Заказы</a>
       </div>
       <div class="text-sm text-muted">
-        <p class="mb-3 text-[11px] uppercase tracking-[0.18em] text-ink">Курсовая</p>
-        <p>Один процесс: Python + SQLite</p>
-        <p class="mt-2">API: <a href="/api/health">/api/health</a></p>
+        <p class="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-ink">Сервис</p>
+        <p>ПВЗ · курьер · СБП</p>
+        <p class="mt-2"><a class="hover:text-ink" href="/api/health">Статус API</a></p>
       </div>
     </div>
   </footer>

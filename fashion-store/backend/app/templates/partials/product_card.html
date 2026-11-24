@@ -1,19 +1,55 @@
-<article class="group">
+<article class="group" data-product-card>
   <a href="{{ url_for('web.product_detail', slug=p.slug) }}" class="block">
     <div class="card-img">
-      {% if p.images %}
-        <img src="{{ p.images[0] }}" alt="{{ p.name }}" loading="lazy" />
+      {% set img = p.primary_image() %}
+      {% if img %}
+        <img data-card-image src="{{ img }}" alt="{{ p.name }}" loading="lazy" />
       {% endif %}
     </div>
     <div class="mt-4 space-y-1">
-      <p class="text-[10px] uppercase tracking-[0.2em] text-muted">{{ p.brand }}</p>
-      <h3 class="text-sm">{{ p.name }}</h3>
+      <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">{{ p.brand }}</p>
+      <h3 class="text-sm font-medium">{{ p.name }}</h3>
       <div class="flex items-baseline gap-3 pt-1">
-        <span class="text-sm">{{ fmt_rub(p.base_price_rub) }}</span>
+        <span class="text-sm font-semibold">{{ fmt_rub(p.base_price_rub) }}</span>
         {% if p.compare_at_price_rub %}
           <span class="text-xs text-muted line-through">{{ fmt_rub(p.compare_at_price_rub) }}</span>
         {% endif %}
       </div>
     </div>
   </a>
+  {% set swatches = p.color_swatches() %}
+  {% if swatches|length > 1 %}
+  <div class="mt-3 flex flex-wrap items-center gap-2" data-swatch-row>
+    {% for s in swatches %}
+      <button
+        type="button"
+        class="swatch {% if loop.first %}is-active{% endif %}"
+        style="background: {{ s.hex }};"
+        title="{{ s.name }}"
+        data-swatch
+        data-image="{{ s.image or '' }}"
+        data-href="{{ url_for('web.product_detail', slug=p.slug, color=s.name) }}"
+        aria-label="Цвет {{ s.name }}"
+      ></button>
+    {% endfor %}
+  </div>
+  <script>
+    (function () {
+      const card = document.currentScript.closest('[data-product-card]');
+      if (!card) return;
+      const img = card.querySelector('[data-card-image]');
+      const link = card.querySelector('a');
+      card.querySelectorAll('[data-swatch]').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          card.querySelectorAll('[data-swatch]').forEach(function (b) { b.classList.remove('is-active'); });
+          btn.classList.add('is-active');
+          if (img && btn.dataset.image) img.src = btn.dataset.image;
+          if (link && btn.dataset.href) link.href = btn.dataset.href;
+        });
+      });
+    })();
+  </script>
+  {% endif %}
 </article>

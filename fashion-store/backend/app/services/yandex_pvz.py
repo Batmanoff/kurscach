@@ -206,12 +206,32 @@ def maps_category_url(city: str | None = None) -> str:
     return f"https://yandex.ru/maps/?category=point_of_delivery&text={quote('Яндекс Маркет пункт выдачи')}"
 
 
+def maps_embed_url(city: str | None = None, lat: float | None = None, lon: float | None = None) -> str:
+    """Iframe-friendly Yandex map-widget centered on city / PVZ search text (no API key)."""
+    coords = None
+    if lat is not None and lon is not None:
+        coords = (float(lat), float(lon))
+    else:
+        coords = _city_coords(city) or (59.2205, 39.8915)  # Вологда — reference page
+    clat, clon = coords
+    label = city or "Вологда"
+    text = quote(f"пункт выдачи Яндекс Маркет {label}")
+    # ll is lon,lat for map-widget
+    return f"https://yandex.ru/map-widget/v1/?ll={clon},{clat}&z=12&l=map&text={text}"
+
+
+def city_center(city: str | None = None) -> dict[str, float]:
+    coords = _city_coords(city) or (59.2205, 39.8915)
+    return {"lat": coords[0], "lon": coords[1]}
+
+
 def _meta() -> dict[str, Any]:
     return {
         "provider": "yandex_market",
         "category_id": CATEGORY_ID,
         "docs": {
             "geosearch": "https://yandex.ru/dev/geosearch/doc/ru/",
+            "maps_js": "https://yandex.ru/dev/jsapi-v2-1/doc/ru/",
             "partner_logistic_points": (
                 "https://yandex.ru/dev/market/partner-api/doc/ru/reference/"
                 "logistic-points/getLogisticPoints"
@@ -219,8 +239,9 @@ def _meta() -> dict[str, Any]:
         },
         "maps_category_example": CITY_MAP_LINKS["вологда"],
         "notes": (
-            "Partner logistics-points требует API-Key продавца. "
-            "Без ключей используем seed + ссылку на карту категории point_of_delivery."
+            "Карта на checkout: iframe map-widget без ключа; "
+            "при YANDEX_MAPS_API_KEY — JS API с метками из списка. "
+            "Partner logistics-points — только с API-Key продавца."
         ),
     }
 
@@ -368,6 +389,24 @@ def search_pvz(
             lat, lon = coords
 
     map_url = maps_category_url(city)
+    embed_url = maps_embed_url(city, lat, lon)
+    center = city_center(city)
+
+    def _pack(items: list[dict], source: str, fallback: bool, message: str | None = None) -> dict[str, Any]:
+        data: dict[str, Any] = {
+            "items": items,
+            "source": source,
+            "fallback": fallback,
+            "count": len(items),
+            "map_url": map_url,
+            "embed_url": embed_url,
+            "center": center,
+            "provider": "yandex_market",
+            "meta": _meta(),
+        }
+        if message:
+            data["message"] = message
+        return data
 
     # 1) Documented Partner API if keys present
     partner = _partner_points(limit)
@@ -380,42 +419,21 @@ def search_pvz(
                 if p.get("lat") is not None and p.get("lon") is not None:
                     p["distance_km"] = round(_haversine_km(lat, lon, float(p["lat"]), float(p["lon"])), 2)
             partner.sort(key=lambda p: p.get("distance_km", 9999))
-        return {
-            "items": partner[:limit],
-            "source": "yandex_partner_api",
-            "fallback": False,
-            "count": min(len(partner), limit),
-            "map_url": map_url,
-            "provider": "yandex_market",
-            "meta": _meta(),
-        }
+        return _pack(partner[:limit], "yandex_partner_api", False)
 
     # 2) Documented Geosearch if Maps API key present
     geo = _geosearch(city, lat, lon, limit)
     if geo:
-        return {
-            "items": geo[:limit],
-            "source": "yandex_geosearch",
-            "fallback": False,
-            "count": min(len(geo), limit),
-            "map_url": map_url,
-            "provider": "yandex_market",
-            "meta": _meta(),
-        }
+        return _pack(geo[:limit], "yandex_geosearch", False)
 
     # 3) Seed (default for coursework — no secrets)
     seeded = _seed_search(city=city, lat=lat, lon=lon, limit=limit)
-    return {
-        "items": seeded,
-        "source": "seed",
-        "fallback": True,
-        "count": len(seeded),
-        "map_url": map_url,
-        "provider": "yandex_market",
-        "message": (
+    return _pack(
+        seeded,
+        "seed",
+        True,
+        (
             "Используется демо-список ПВЗ Яндекс Маркет. "
-            "Для живых данных задайте YANDEX_MAPS_API_KEY (Geosearch) "
-            "или YANDEX_MARKET_API_KEY + YANDEX_MARKET_BUSINESS_ID (Partner API)."
+            "Карта — iframe map-widget; для JS API / Geosearch задайте YANDEX_MAPS_API_KEY."
         ),
-        "meta": _meta(),
-    }
+    )

@@ -1,4 +1,4 @@
-# Хостинг ATELIER (курсовая)
+# Хостинг BAST (курсовая)
 
 Локально достаточно `start.bat` (Flask + SQLite). На хостинге обычно нужен **PostgreSQL** и **Gunicorn**.
 
@@ -43,7 +43,7 @@ web: cd fashion-store/backend && gunicorn -b 0.0.0.0:${PORT:-5000} -w 2 run:app
 На Render удобнее Dockerfile:
 
 ```
-docker build -t atelier ./fashion-store/backend
+docker build -t bast ./fashion-store/backend
 ```
 
 ## VPS (Timeweb / Beget / любой Linux)

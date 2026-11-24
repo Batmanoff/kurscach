@@ -73,7 +73,7 @@ def create_product(user: User):
     product = Product(
         slug=data["slug"],
         name=data["name"],
-        brand=data.get("brand", "ATELIER"),
+        brand=data.get("brand", "BAST"),
         description=data.get("description"),
         category_id=data.get("category_id"),
         base_price_rub=data["base_price_rub"],

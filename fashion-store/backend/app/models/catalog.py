@@ -36,7 +36,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(180), unique=True, nullable=False, index=True)
     name = db.Column(db.String(255), nullable=False)
-    brand = db.Column(db.String(120), nullable=False, default="ATELIER")
+    brand = db.Column(db.String(120), nullable=False, default="BAST")
     description = db.Column(db.Text, nullable=True)
     composition = db.Column(db.String(255), nullable=True)
     care = db.Column(db.String(255), nullable=True)
@@ -62,6 +62,50 @@ class Product(db.Model):
         "ProductVariant", back_populates="product", cascade="all, delete-orphan", lazy="joined"
     )
 
+    def _images_payload(self) -> dict:
+        raw = self.images or []
+        if isinstance(raw, dict):
+            return {
+                "gallery": list(raw.get("gallery") or []),
+                "by_color": dict(raw.get("by_color") or {}),
+            }
+        if isinstance(raw, list):
+            gallery = []
+            by_color: dict = {}
+            for item in raw:
+                if isinstance(item, str):
+                    gallery.append(item)
+                elif isinstance(item, dict) and item.get("url"):
+                    gallery.append(item["url"])
+                    if item.get("color"):
+                        by_color[item["color"]] = item["url"]
+            return {"gallery": gallery, "by_color": by_color}
+        return {"gallery": [], "by_color": {}}
+
+    def primary_image(self, color: str | None = None) -> str | None:
+        payload = self._images_payload()
+        if color and color in payload["by_color"]:
+            return payload["by_color"][color]
+        if payload["gallery"]:
+            return payload["gallery"][0]
+        if payload["by_color"]:
+            return next(iter(payload["by_color"].values()))
+        return None
+
+    def color_swatches(self) -> list[dict]:
+        """Unique colors with hex + photo for UI swatches."""
+        payload = self._images_payload()
+        seen: dict[str, dict] = {}
+        for v in self.variants:
+            if v.color in seen:
+                continue
+            seen[v.color] = {
+                "name": v.color,
+                "hex": v.color_hex or "#888888",
+                "image": payload["by_color"].get(v.color) or self.primary_image(v.color),
+            }
+        return list(seen.values())
+
     def to_dict(self, include_variants: bool = True) -> dict:
         data = {
             "id": self.id,
@@ -79,6 +123,8 @@ class Product(db.Model):
             else None,
             "currency": self.currency,
             "images": self.images or [],
+            "primary_image": self.primary_image(),
+            "color_swatches": self.color_swatches(),
             "tags": self.tags or [],
             "is_published": self.is_published,
             "is_featured": self.is_featured,

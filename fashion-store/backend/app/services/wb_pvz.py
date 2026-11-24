@@ -161,7 +161,7 @@ SEEDED_PVZ: list[dict[str, Any]] = [
 
 def _headers() -> dict[str, str]:
     return {
-        "User-Agent": "ATELIER-Coursework/1.0 (educational; public map data)",
+        "User-Agent": "BAST-Coursework/1.0 (educational; public map data)",
         "Accept": "application/json",
         "x-requested-with": "XMLHttpRequest",
         "Content-Type": "application/json",

@@ -1,6 +1,6 @@
-# ATELIER (kurscach)
+# BAST (kurscach)
 
-Fashion-магазин на **Python / Flask + Jinja2** (SQLite). Без Node для основного демо.
+Street & sport магазин на **Python / Flask + Jinja2** (SQLite). Один процесс — без Node для основной витрины.
 
 ## Как запустить (Windows)
 
@@ -9,7 +9,7 @@ Fashion-магазин на **Python / Flask + Jinja2** (SQLite). Без Node д
 3. Откройте http://127.0.0.1:5000  
 4. Остановка: **`stop.bat`**.
 
-## Демо
+## Учебные аккаунты
 
 | | Email | Пароль |
 |---|---|---|
@@ -18,6 +18,8 @@ Fashion-магазин на **Python / Flask + Jinja2** (SQLite). Без Node д
 
 Промокод: `WELCOME10`
 
-Доставка в **ПВЗ Яндекс Маркет** (seed + опциональный Geosearch/Partner API): [docs/YANDEX_PVZ.md](docs/YANDEX_PVZ.md)
+Доставка в **ПВЗ Яндекс Маркет** (карта iframe + список, опционально JS API): [docs/YANDEX_PVZ.md](docs/YANDEX_PVZ.md)
 
-Хостинг (Timeweb / Beget / Railway / Render / VPS): [docs/HOSTING.md](docs/HOSTING.md)
+Хостинг: [docs/HOSTING.md](docs/HOSTING.md)
+
+Картинки каталога — Unsplash (свободная лицензия), без хотлинка чужих бренд-CDN.

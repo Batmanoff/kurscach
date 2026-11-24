@@ -1,4 +1,4 @@
-"""Seed demo catalog, admin/demo users, and coupons."""
+"""Seed catalog, admin/customer users, and coupons. Upserts sportswear by SKU."""
 
 from __future__ import annotations
 
@@ -30,7 +30,12 @@ def seed() -> None:
 
         demo = User.query.filter_by(email=cfg.DEMO_EMAIL).first()
         if not demo:
-            demo = User(email=cfg.DEMO_EMAIL, full_name="Demo Customer", role="customer", phone="+79001234567")
+            demo = User(
+                email=cfg.DEMO_EMAIL,
+                full_name="Demo Customer",
+                role="customer",
+                phone="+79001234567",
+            )
             demo.set_password(cfg.DEMO_PASSWORD)
             db.session.add(demo)
 
@@ -42,40 +47,72 @@ def seed() -> None:
                 cat = Category(**c)
                 db.session.add(cat)
                 db.session.flush()
+            else:
+                cat.name = c["name"]
+                cat.description = c["description"]
+                cat.sort_order = c["sort_order"]
             category_map[c["slug"]] = cat
 
-        if Product.query.count() == 0:
-            for item in supplier.fetch_catalog():
+        keep_skus: set[str] = set()
+        for item in supplier.fetch_catalog():
+            keep_skus.add(item.sku)
+            images_payload = {
+                "gallery": list(item.images),
+                "by_color": {c.name: c.image for c in item.colors},
+            }
+            product = Product.query.filter_by(supplier_sku=item.sku).first()
+            if not product:
                 product = Product(
+                    supplier_sku=item.sku,
                     slug=slugify(f"{item.brand}-{item.name}-{item.sku}"),
                     name=item.name,
                     brand=item.brand,
                     description=item.description,
                     composition=item.composition,
-                    care="Химчистка / бережная стирка",
+                    care="Стирка 30°C, не отбеливать",
                     category_id=category_map[item.category_slug].id,
                     base_price_rub=item.price_rub,
                     compare_at_price_rub=item.compare_at,
-                    images=item.images,
+                    images=images_payload,
                     tags=item.tags,
                     is_featured=item.featured,
-                    supplier_sku=item.sku,
+                    is_published=True,
                 )
                 db.session.add(product)
                 db.session.flush()
-                for color_name, color_hex in item.colors:
-                    for size in item.sizes:
-                        sku = f"{item.sku}-{color_name[:3].upper()}-{size}"
-                        db.session.add(
-                            ProductVariant(
-                                product_id=product.id,
-                                sku=sku,
-                                size=size,
-                                color=color_name,
-                                color_hex=color_hex,
-                                stock=12,
-                            )
+            else:
+                product.slug = slugify(f"{item.brand}-{item.name}-{item.sku}")
+                product.name = item.name
+                product.brand = item.brand
+                product.description = item.description
+                product.composition = item.composition
+                product.care = "Стирка 30°C, не отбеливать"
+                product.category_id = category_map[item.category_slug].id
+                product.base_price_rub = item.price_rub
+                product.compare_at_price_rub = item.compare_at
+                product.images = images_payload
+                product.tags = item.tags
+                product.is_featured = item.featured
+                product.is_published = True
+
+            ProductVariant.query.filter_by(product_id=product.id).delete()
+            for color in item.colors:
+                for size in item.sizes:
+                    sku = f"{item.sku}-{color.name[:3].upper()}-{size}"
+                    db.session.add(
+                        ProductVariant(
+                            product_id=product.id,
+                            sku=sku,
+                            size=size,
+                            color=color.name,
+                            color_hex=color.hex,
+                            stock=12,
                         )
+                    )
+
+        for old in Product.query.all():
+            if not old.supplier_sku or old.supplier_sku not in keep_skus:
+                db.session.delete(old)
 
         if not Coupon.query.filter_by(code="WELCOME10").first():
             db.session.add(
@@ -91,7 +128,7 @@ def seed() -> None:
         db.session.commit()
         print("Seed complete.")
         print(f"Admin: {cfg.ADMIN_EMAIL} / {cfg.ADMIN_PASSWORD}")
-        print(f"Demo:  {cfg.DEMO_EMAIL} / {cfg.DEMO_PASSWORD}")
+        print(f"Customer: {cfg.DEMO_EMAIL} / {cfg.DEMO_PASSWORD}")
         print(f"Products: {Product.query.count()}")
 
 

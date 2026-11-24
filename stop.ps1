@@ -1,9 +1,9 @@
-﻿# Stop ATELIER Flask (port 5000)
+﻿# Stop BAST Flask (port 5000)
 $ErrorActionPreference = "SilentlyContinue"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host ""
-Write-Host "Останавливаю ATELIER (порт 5000)..." -ForegroundColor Cyan
+Write-Host "Останавливаю BAST (порт 5000)..." -ForegroundColor Cyan
 
 function Stop-Port([int]$Port) {
     $conns = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
