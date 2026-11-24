@@ -1,5 +1,10 @@
-{% set is_easter = p.tags and ('easter_snurki' in p.tags) %}
-<article class="group {% if is_easter %}product-card-easter{% endif %}" data-product-card {% if is_easter %}data-easter-snurki{% endif %}>
+{# Easter egg ONLY for Off-White shoelaces SKU — never by loose tag match #}
+{% set is_easter = p.supplier_sku == 'SWG-OW-LACE-17' %}
+<article
+  class="group product-card{% if is_easter %} product-card-easter{% endif %}"
+  data-product-card
+  {% if is_easter %}data-easter-snurki data-easter-sku="SWG-OW-LACE-17"{% endif %}
+>
   {% if is_easter %}
   <div class="easter-stage">
     <img
@@ -10,6 +15,7 @@
       loading="lazy"
       width="220"
       height="295"
+      draggable="false"
     />
     <div class="easter-front">
   {% endif %}

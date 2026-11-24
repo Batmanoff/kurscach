@@ -1,7 +1,10 @@
 (function () {
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var EASTER_SKU = "SWG-OW-LACE-17";
 
-  document.querySelectorAll("[data-easter-snurki]").forEach(function (card) {
+  document.querySelectorAll("[data-easter-snurki][data-easter-sku]").forEach(function (card) {
+    if (card.getAttribute("data-easter-sku") !== EASTER_SKU) return;
+
     var audio = card.querySelector("[data-easter-audio]");
     var playing = false;
     var cooldown = false;
@@ -21,7 +24,7 @@
     }
 
     function stopAudio() {
-      if (!audio || !playing) return;
+      if (!audio) return;
       try {
         audio.pause();
         audio.currentTime = 0;
