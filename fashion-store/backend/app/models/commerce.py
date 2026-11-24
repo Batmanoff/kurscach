@@ -144,6 +144,10 @@ class Order(db.Model):
     shipping_city = db.Column(db.String(120), nullable=False)
     shipping_address = db.Column(db.String(512), nullable=False)
     shipping_postal = db.Column(db.String(16), nullable=True)
+    # courier | wb_pvz
+    delivery_type = db.Column(db.String(32), nullable=False, default="courier")
+    pvz_id = db.Column(db.String(64), nullable=True)
+    pvz_meta = db.Column(db.JSON, nullable=True)
     comment = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(
@@ -176,6 +180,9 @@ class Order(db.Model):
                 "address": self.shipping_address,
                 "postal": self.shipping_postal,
             },
+            "delivery_type": self.delivery_type or "courier",
+            "pvz_id": self.pvz_id,
+            "pvz_meta": self.pvz_meta,
             "comment": self.comment,
             "items": [i.to_dict() for i in self.items],
             "created_at": self.created_at.isoformat() if self.created_at else None,

@@ -18,4 +18,6 @@ Fashion-магазин на **Python / Flask + Jinja2** (SQLite). Без Node д
 
 Промокод: `WELCOME10`
 
+Доставка в **ПВЗ Wildberries** (публичный map/webapi + демо-fallback): [docs/WB_PVZ.md](docs/WB_PVZ.md)
+
 Хостинг (Timeweb / Beget / Railway / Render / VPS): [docs/HOSTING.md](docs/HOSTING.md)

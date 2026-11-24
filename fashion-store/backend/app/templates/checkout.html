@@ -3,16 +3,74 @@
 {% block content %}
 <div class="mx-auto max-w-6xl px-5 py-12 md:px-8">
   <h1 class="font-display text-4xl">Оформление</h1>
+  <p class="mt-3 max-w-2xl text-sm text-muted">
+    Доставка в ПВЗ Wildberries — учебная «коллаба» через публичный map/webapi WB
+    (<a class="underline" href="https://map.wb.ru/" target="_blank" rel="noreferrer">map.wb.ru</a>).
+    Если API недоступен, показывается демо-список пунктов.
+  </p>
+
   <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_280px]">
-    <form method="post" class="max-w-xl space-y-4">
-      <div><label class="label">Получатель</label><input class="input" name="shipping_name" value="{{ form.shipping_name }}" required /></div>
-      <div><label class="label">Телефон</label><input class="input" name="shipping_phone" value="{{ form.shipping_phone }}" required /></div>
-      <div><label class="label">Город</label><input class="input" name="shipping_city" value="{{ form.shipping_city }}" required /></div>
-      <div><label class="label">Адрес</label><input class="input" name="shipping_address" value="{{ form.shipping_address }}" required /></div>
-      <div><label class="label">Индекс</label><input class="input" name="shipping_postal" value="{{ form.shipping_postal }}" /></div>
-      <div><label class="label">Промокод</label><input class="input" name="coupon_code" value="{{ form.coupon_code }}" /></div>
+    <form method="post" id="checkout-form" class="max-w-xl space-y-4">
+      <div>
+        <label class="label">Получатель</label>
+        <input class="input" name="shipping_name" value="{{ form.shipping_name }}" required />
+      </div>
+      <div>
+        <label class="label">Телефон</label>
+        <input class="input" name="shipping_phone" value="{{ form.shipping_phone }}" required />
+      </div>
+      <div>
+        <label class="label">Город</label>
+        <input class="input" id="shipping_city" name="shipping_city" value="{{ form.shipping_city }}" required />
+      </div>
+
+      <fieldset class="space-y-3 border border-ink/10 bg-white/40 p-4">
+        <legend class="px-1 text-[11px] uppercase tracking-[0.16em] text-muted">Способ доставки</legend>
+        <label class="flex items-center gap-3 text-sm">
+          <input type="radio" name="delivery_type" value="wb_pvz" {% if form.delivery_type != 'courier' %}checked{% endif %} />
+          Доставка в ПВЗ Wildberries
+        </label>
+        <label class="flex items-center gap-3 text-sm">
+          <input type="radio" name="delivery_type" value="courier" {% if form.delivery_type == 'courier' %}checked{% endif %} />
+          Курьер / свой адрес
+        </label>
+      </fieldset>
+
+      <div id="courier-fields" class="space-y-4 {% if form.delivery_type != 'courier' %}hidden{% endif %}">
+        <div>
+          <label class="label">Адрес</label>
+          <input class="input" id="shipping_address" name="shipping_address" value="{{ form.shipping_address }}" />
+        </div>
+        <div>
+          <label class="label">Индекс</label>
+          <input class="input" name="shipping_postal" value="{{ form.shipping_postal }}" />
+        </div>
+      </div>
+
+      <div id="pvz-fields" class="space-y-3 {% if form.delivery_type == 'courier' %}hidden{% endif %}">
+        <div class="flex flex-wrap gap-3">
+          <button type="button" id="pvz-search-btn" class="btn-outline">Найти ПВЗ в городе</button>
+          <span id="pvz-status" class="self-center text-xs text-muted"></span>
+        </div>
+        <div id="pvz-list" class="max-h-72 space-y-2 overflow-y-auto border border-ink/10 bg-white/70 p-3 text-sm"></div>
+        <input type="hidden" name="pvz_id" id="pvz_id" value="{{ form.pvz_id }}" />
+        <input type="hidden" name="pvz_address" id="pvz_address" value="{{ form.pvz_address }}" />
+        <input type="hidden" name="pvz_work_time" id="pvz_work_time" value="{{ form.pvz_work_time }}" />
+        <input type="hidden" name="pvz_lat" id="pvz_lat" value="{{ form.pvz_lat }}" />
+        <input type="hidden" name="pvz_lon" id="pvz_lon" value="{{ form.pvz_lon }}" />
+        <input type="hidden" name="pvz_source" id="pvz_source" value="{{ form.pvz_source }}" />
+        <p id="pvz-selected" class="text-sm text-accent">
+          {% if form.pvz_address %}Выбрано: {{ form.pvz_address }}{% endif %}
+        </p>
+      </div>
+
+      <div>
+        <label class="label">Промокод</label>
+        <input class="input" name="coupon_code" value="{{ form.coupon_code }}" />
+      </div>
       <button class="btn mt-2" type="submit">Создать заказ и оплатить СБП</button>
     </form>
+
     <aside class="h-fit border border-ink/10 bg-white/50 p-5 text-sm">
       <p class="text-[11px] uppercase tracking-[0.16em] text-muted">Корзина</p>
       <p class="mt-3 font-display text-2xl">{{ fmt_rub(cart['subtotal_rub']) }}</p>
@@ -24,4 +82,109 @@
     </aside>
   </div>
 </div>
+
+<script>
+(function () {
+  const form = document.getElementById('checkout-form');
+  const courierFields = document.getElementById('courier-fields');
+  const pvzFields = document.getElementById('pvz-fields');
+  const cityInput = document.getElementById('shipping_city');
+  const listEl = document.getElementById('pvz-list');
+  const statusEl = document.getElementById('pvz-status');
+  const selectedEl = document.getElementById('pvz-selected');
+  const addressInput = document.getElementById('shipping_address');
+
+  function deliveryType() {
+    const el = form.querySelector('input[name="delivery_type"]:checked');
+    return el ? el.value : 'wb_pvz';
+  }
+
+  function syncMode() {
+    const pvz = deliveryType() === 'wb_pvz';
+    courierFields.classList.toggle('hidden', pvz);
+    pvzFields.classList.toggle('hidden', !pvz);
+    if (pvz) {
+      addressInput.removeAttribute('required');
+    } else {
+      addressInput.setAttribute('required', 'required');
+    }
+  }
+
+  form.querySelectorAll('input[name="delivery_type"]').forEach((el) => {
+    el.addEventListener('change', syncMode);
+  });
+  syncMode();
+
+  function selectPvz(item) {
+    document.getElementById('pvz_id').value = item.id || '';
+    document.getElementById('pvz_address').value = item.address || '';
+    document.getElementById('pvz_work_time').value = item.work_time || '';
+    document.getElementById('pvz_lat').value = item.lat != null ? item.lat : '';
+    document.getElementById('pvz_lon').value = item.lon != null ? item.lon : '';
+    document.getElementById('pvz_source').value = item.source || '';
+    selectedEl.textContent = 'Выбрано: ' + (item.address || item.id);
+    listEl.querySelectorAll('button').forEach((b) => b.classList.remove('border-ink', 'bg-ink', 'text-paper'));
+  }
+
+  function renderList(data) {
+    const items = data.items || [];
+    listEl.innerHTML = '';
+    if (!items.length) {
+      listEl.innerHTML = '<p class="text-muted">Пункты не найдены</p>';
+      return;
+    }
+    const note = data.fallback
+      ? '<p class="mb-2 text-xs text-muted">Источник: демо-список (WB API недоступен или нет совпадений)</p>'
+      : '<p class="mb-2 text-xs text-muted">Источник: ' + (data.source || 'wb') + '</p>';
+    listEl.insertAdjacentHTML('beforeend', note);
+    items.forEach((item) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'w-full border border-ink/15 px-3 py-3 text-left hover:border-ink';
+      const dist = item.distance_km != null ? ' · ' + item.distance_km + ' км' : '';
+      const hours = item.work_time ? '<div class="mt-1 text-xs text-muted">' + item.work_time + '</div>' : '';
+      btn.innerHTML = '<div class="text-sm">' + (item.address || 'ПВЗ') + dist + '</div>' + hours;
+      btn.addEventListener('click', () => {
+        selectPvz(item);
+        btn.classList.add('border-ink', 'bg-ink', 'text-paper');
+      });
+      listEl.appendChild(btn);
+    });
+  }
+
+  async function searchPvz() {
+    const city = (cityInput.value || '').trim();
+    if (!city) {
+      statusEl.textContent = 'Укажите город';
+      return;
+    }
+    statusEl.textContent = 'Ищем ПВЗ…';
+    try {
+      const res = await fetch('/api/delivery/pvz?city=' + encodeURIComponent(city) + '&limit=20');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'error');
+      renderList(data);
+      statusEl.textContent = (data.count || 0) + ' пунктов';
+    } catch (e) {
+      statusEl.textContent = 'Ошибка загрузки ПВЗ';
+      listEl.innerHTML = '<p class="text-muted">Не удалось загрузить список</p>';
+    }
+  }
+
+  document.getElementById('pvz-search-btn').addEventListener('click', searchPvz);
+
+  form.addEventListener('submit', (e) => {
+    if (deliveryType() === 'wb_pvz' && !document.getElementById('pvz_id').value) {
+      e.preventDefault();
+      statusEl.textContent = 'Сначала выберите ПВЗ из списка';
+      searchPvz();
+    }
+  });
+
+  // Auto-load for default city
+  if (deliveryType() === 'wb_pvz' && (cityInput.value || '').trim()) {
+    searchPvz();
+  }
+})();
+</script>
 {% endblock %}

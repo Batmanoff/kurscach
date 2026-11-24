@@ -13,6 +13,13 @@
           <p class="text-xs uppercase tracking-[0.14em] text-muted">{{ o.status }}</p>
         </div>
         <p class="mt-2 text-sm">{{ fmt_rub(o.total_rub) }}</p>
+        <p class="mt-1 text-xs text-muted">
+          {% if o.delivery_type == 'wb_pvz' %}
+            ПВЗ WB{% if o.pvz_meta and o.pvz_meta.address %}: {{ o.pvz_meta.address }}{% elif o.shipping_address %}: {{ o.shipping_address }}{% endif %}
+          {% else %}
+            {{ o.shipping_city }}, {{ o.shipping_address }}
+          {% endif %}
+        </p>
         <ul class="mt-3 space-y-1 text-xs text-muted">
           {% for i in o.items %}
             <li>{{ i.product_name }} · {{ i.size }}/{{ i.color }} × {{ i.quantity }}</li>

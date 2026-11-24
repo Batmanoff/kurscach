@@ -50,8 +50,17 @@ def create_app(config_object: type[Config] | None = None) -> Flask:
 
     from app import models  # noqa: F401
     from app.routes import register_blueprints
+    from app.utils.schema import ensure_order_delivery_columns
 
     register_blueprints(app)
+
+    with app.app_context():
+        try:
+            db.create_all()
+            ensure_order_delivery_columns()
+        except Exception:
+            # Don't block boot if DB not ready yet
+            pass
 
     @app.get("/api/health")
     def health():

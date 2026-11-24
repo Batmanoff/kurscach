@@ -72,6 +72,14 @@ class OrderService:
         shipping = Decimal(str(payload.get("shipping_rub", 0) or 0))
         total = subtotal - discount + shipping
 
+        delivery_type = (payload.get("delivery_type") or "courier").strip()
+        if delivery_type not in ("courier", "wb_pvz"):
+            abort(400, description="invalid_delivery_type")
+        pvz_id = payload.get("pvz_id")
+        pvz_meta = payload.get("pvz_meta")
+        if delivery_type == "wb_pvz" and not pvz_id:
+            abort(400, description="pvz_required")
+
         order = Order(
             public_id=str(uuid.uuid4()),
             user_id=user.id,
@@ -86,6 +94,9 @@ class OrderService:
             shipping_city=payload["shipping_city"],
             shipping_address=payload["shipping_address"],
             shipping_postal=payload.get("shipping_postal"),
+            delivery_type=delivery_type,
+            pvz_id=str(pvz_id) if pvz_id else None,
+            pvz_meta=pvz_meta if isinstance(pvz_meta, dict) else None,
             comment=payload.get("comment"),
         )
         db.session.add(order)
