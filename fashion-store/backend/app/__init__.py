@@ -25,7 +25,7 @@ def create_app(config_object: type[Config] | None = None) -> Flask:
     app = Flask(__name__, static_folder="static", template_folder="templates")
     cfg = config_object or Config
     app.config.from_object(cfg)
-    app.config.setdefault("STORE_NAME", "BAST")
+    app.config.setdefault("STORE_NAME", "Swaga")
     app.config.setdefault("PERMANENT_SESSION_LIFETIME", timedelta(days=14))
 
     storage_uri = getattr(cfg, "RATELIMIT_STORAGE_URI", None) or "memory://"

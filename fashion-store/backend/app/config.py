@@ -36,7 +36,7 @@ class Config:
     BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:5000")
     # Same origin as Flask Jinja UI by default (Next.js is optional).
     FRONTEND_URL = os.getenv("FRONTEND_URL", BACKEND_URL)
-    STORE_NAME = os.getenv("STORE_NAME", "BAST")
+    STORE_NAME = os.getenv("STORE_NAME", "Swaga")
 
     YOOKASSA_SHOP_ID = os.getenv("YOOKASSA_SHOP_ID", "").strip()
     YOOKASSA_SECRET_KEY = os.getenv("YOOKASSA_SECRET_KEY", "").strip()

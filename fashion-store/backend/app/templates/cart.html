@@ -10,8 +10,9 @@
       <div class="space-y-6">
         {% for item in cart['items'] %}
           <div class="flex gap-5 border-b border-ink/10 pb-6">
-            {% if item.product and item.product.images %}
-              <img src="{{ item.product.images[0] }}" alt="" class="h-28 w-24 object-cover bg-mist" />
+            {% set thumb = item.product.primary_image if item.product else None %}
+            {% if thumb %}
+              <img src="{{ thumb }}" alt="" class="h-28 w-24 object-cover bg-mist" />
             {% endif %}
             <div class="flex-1">
               <p class="text-[10px] uppercase tracking-[0.18em] text-muted">{{ item.product.brand if item.product else '' }}</p>

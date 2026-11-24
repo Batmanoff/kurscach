@@ -1,4 +1,4 @@
-﻿# BAST — one-click start (Flask only, no Node)
+﻿# Swaga — one-click start (Flask only, no Node)
 $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
@@ -30,7 +30,7 @@ function Test-PortInUse([int]$Port) {
 
 Write-Ru ""
 Write-Ru "========================================" "Cyan"
-Write-Ru "  BAST — запуск (только Flask)" "Cyan"
+Write-Ru "  Swaga — запуск (только Flask)" "Cyan"
 Write-Ru "========================================" "Cyan"
 Write-Ru ""
 
@@ -118,7 +118,7 @@ set JWT_SECRET_KEY=dev-jwt-change-me
 set FRONTEND_URL=http://127.0.0.1:5000
 set BACKEND_URL=http://127.0.0.1:5000
 set YOOKASSA_RETURN_URL=http://127.0.0.1:5000/checkout/success
-title BAST Flask :5000
+title Swaga Flask :5000
 echo.
 echo  Магазин: http://127.0.0.1:5000
 echo  API:     http://127.0.0.1:5000/api/health
@@ -127,7 +127,7 @@ echo.
 ".venv\Scripts\python.exe" run.py
 pause
 "@
-$backendBat = Join-Path $env:TEMP "bast-flask-start.bat"
+$backendBat = Join-Path $env:TEMP "swaga-flask-start.bat"
 Set-Content -Path $backendBat -Value $backendCmd -Encoding ASCII
 Start-Process -FilePath "cmd.exe" -ArgumentList "/k", "`"$backendBat`""
 

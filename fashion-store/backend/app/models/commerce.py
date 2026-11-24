@@ -70,6 +70,9 @@ class CartItem(db.Model):
                 "name": product.name,
                 "brand": product.brand,
                 "images": product.images or [],
+                "primary_image": product.primary_image(
+                    self.variant.color if self.variant else None
+                ),
             }
             if product
             else None,

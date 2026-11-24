@@ -24,6 +24,7 @@ from app.auth.session_auth import (
 )
 from app.models import ORDER_STATUSES, Category, Favorite, Order, Product, ProductVariant, User
 from app.services import CartService, OrderService
+from app.services.order_service import checkout_error_message
 from app.utils import validate_email
 
 bp = Blueprint("web", __name__)
@@ -46,7 +47,7 @@ def inject_globals():
     return {
         "current_user": user,
         "cart_count": cart_count,
-        "store_name": current_app.config.get("STORE_NAME", "BAST"),
+        "store_name": current_app.config.get("STORE_NAME", "Swaga"),
         "fmt_rub": _fmt_rub,
         "payments_mode": "yookassa"
         if (current_app.config.get("YOOKASSA_SHOP_ID") and current_app.config.get("YOOKASSA_SECRET_KEY"))
@@ -251,7 +252,7 @@ def checkout(user: User):
         "shipping_city": "Москва",
         "shipping_address": "",
         "shipping_postal": "",
-        "coupon_code": "WELCOME10",
+        "coupon_code": "",
         "delivery_type": "yandex_pvz",
         "pvz_id": "",
         "pvz_address": "",
@@ -331,11 +332,27 @@ def checkout(user: User):
         order = OrderService.create_from_cart(user, payload)
         OrderService.create_payment(order, user_email=user.email)
     except HTTPException as exc:
-        flash(exc.description or "Не удалось оформить заказ", "error")
-        return redirect(url_for("web.cart"))
+        db.session.rollback()
+        flash(checkout_error_message(exc.description), "error")
+        cart_data = CartService.get_or_create(user.id).to_dict()
+        form = {**default_form, **{k: request.form.get(k, "") for k in default_form}}
+        return render_template(
+            "checkout.html",
+            cart=cart_data,
+            form=form,
+            yandex_maps_api_key=current_app.config.get("YANDEX_MAPS_API_KEY") or "",
+        )
     except Exception:
-        flash("Не удалось оформить заказ", "error")
-        return redirect(url_for("web.cart"))
+        db.session.rollback()
+        flash("Не удалось оформить заказ. Проверьте данные и попробуйте снова.", "error")
+        cart_data = CartService.get_or_create(user.id).to_dict()
+        form = {**default_form, **{k: request.form.get(k, "") for k in default_form}}
+        return render_template(
+            "checkout.html",
+            cart=cart_data,
+            form=form,
+            yandex_maps_api_key=current_app.config.get("YANDEX_MAPS_API_KEY") or "",
+        )
     return redirect(url_for("web.checkout_pay", public_id=order.public_id))
 
 

@@ -114,16 +114,21 @@ def seed() -> None:
             if not old.supplier_sku or old.supplier_sku not in keep_skus:
                 db.session.delete(old)
 
-        if not Coupon.query.filter_by(code="WELCOME10").first():
+        coupon = Coupon.query.filter_by(code="WELCOME10").first()
+        if not coupon:
             db.session.add(
                 Coupon(
                     code="WELCOME10",
-                    description="Скидка 10% на первый заказ",
+                    description="Скидка 10% на заказ",
                     discount_percent=10,
-                    min_order_rub=5000,
+                    min_order_rub=0,
                     is_active=True,
                 )
             )
+        else:
+            coupon.min_order_rub = 0
+            coupon.is_active = True
+            coupon.description = "Скидка 10% на заказ"
 
         db.session.commit()
         print("Seed complete.")

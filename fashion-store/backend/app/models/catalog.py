@@ -36,7 +36,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     slug = db.Column(db.String(180), unique=True, nullable=False, index=True)
     name = db.Column(db.String(255), nullable=False)
-    brand = db.Column(db.String(120), nullable=False, default="BAST")
+    brand = db.Column(db.String(120), nullable=False, default="Swaga")
     description = db.Column(db.Text, nullable=True)
     composition = db.Column(db.String(255), nullable=True)
     care = db.Column(db.String(255), nullable=True)

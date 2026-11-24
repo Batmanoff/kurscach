@@ -11,13 +11,34 @@ from app.models import Coupon, Order, OrderItem, Payment, ProductVariant
 from app.payments import YooKassaService
 from app.services.cart_service import CartService
 
+CHECKOUT_ERROR_MESSAGES = {
+    "cart_empty": "Корзина пуста",
+    "invalid_coupon": "Промокод не найден",
+    "coupon_expired": "Срок действия промокода истёк",
+    "coupon_exhausted": "Промокод больше недоступен",
+    "coupon_min_order": "Промокод действует от минимальной суммы заказа — уберите его или добавьте товары",
+    "invalid_delivery_type": "Выберите способ доставки",
+    "pvz_required": "Выберите пункт выдачи Яндекс Маркет",
+    "insufficient_stock": "Недостаточно товара на складе",
+}
+
+
+def checkout_error_message(description: str | None) -> str:
+    if not description:
+        return "Не удалось оформить заказ"
+    key = description.split(":", 1)[0]
+    return CHECKOUT_ERROR_MESSAGES.get(key, description)
+
 
 class OrderService:
     @staticmethod
     def apply_coupon(subtotal: Decimal, code: str | None) -> tuple[Decimal, str | None]:
         if not code:
             return Decimal("0"), None
-        coupon = Coupon.query.filter_by(code=code.upper().strip(), is_active=True).first()
+        raw = code.upper().strip()
+        if not raw:
+            return Decimal("0"), None
+        coupon = Coupon.query.filter_by(code=raw, is_active=True).first()
         if not coupon:
             abort(400, description="invalid_coupon")
         if coupon.valid_until and coupon.valid_until.replace(tzinfo=timezone.utc) < datetime.now(

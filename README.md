@@ -1,4 +1,4 @@
-# BAST (kurscach)
+# Swaga (kurscach)
 
 Street & sport магазин на **Python / Flask + Jinja2** (SQLite). Один процесс — без Node для основной витрины.
 
@@ -16,10 +16,10 @@ Street & sport магазин на **Python / Flask + Jinja2** (SQLite). Оди�
 | Покупатель | `demo@atelier.dev` | `Demo123!` |
 | Админ | `admin@atelier.dev` | `Admin123!` |
 
-Промокод: `WELCOME10`
+Промокод: `WELCOME10` (опционально, поле на checkout пустое по умолчанию)
 
-Доставка в **ПВЗ Яндекс Маркет** (карта iframe + список, опционально JS API): [docs/YANDEX_PVZ.md](docs/YANDEX_PVZ.md)
+Доставка в **ПВЗ Яндекс Маркет** (карта iframe + список): [docs/YANDEX_PVZ.md](docs/YANDEX_PVZ.md)
 
 Хостинг: [docs/HOSTING.md](docs/HOSTING.md)
 
-Картинки каталога — Unsplash (свободная лицензия), без хотлинка чужих бренд-CDN.
+Картинки каталога — Unsplash / Pexels. Бренд витрины: **Swaga**.

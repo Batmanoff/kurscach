@@ -43,4 +43,4 @@ GET /api/delivery/pvz?lat=59.22&lon=39.89&limit=20
 
 Опционально в `.env`: `YANDEX_MAPS_API_KEY=` (JS API + Geosearch). Без ключа карта всё равно показывается через iframe.
 
-WB webapi на BASTARD был недоступен — основной путь Яндекс (seed + опциональные ключи). Старый `docs/WB_PVZ.md` — архив.
+WB webapi в учебной среде был недоступен — основной путь Яндекс (seed + опциональные ключи). Старый `docs/WB_PVZ.md` — архив.
