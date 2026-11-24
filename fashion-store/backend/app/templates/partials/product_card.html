@@ -1,0 +1,19 @@
+<article class="group">
+  <a href="{{ url_for('web.product_detail', slug=p.slug) }}" class="block">
+    <div class="card-img">
+      {% if p.images %}
+        <img src="{{ p.images[0] }}" alt="{{ p.name }}" loading="lazy" />
+      {% endif %}
+    </div>
+    <div class="mt-4 space-y-1">
+      <p class="text-[10px] uppercase tracking-[0.2em] text-muted">{{ p.brand }}</p>
+      <h3 class="text-sm">{{ p.name }}</h3>
+      <div class="flex items-baseline gap-3 pt-1">
+        <span class="text-sm">{{ fmt_rub(p.base_price_rub) }}</span>
+        {% if p.compare_at_price_rub %}
+          <span class="text-xs text-muted line-through">{{ fmt_rub(p.compare_at_price_rub) }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </a>
+</article>

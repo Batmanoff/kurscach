@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — {{ store_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto flex max-w-6xl justify-center px-5 py-20 md:px-8">
+  <form method="post" class="w-full max-w-md space-y-5">
+    <h1 class="font-display text-4xl">Регистрация</h1>
+    <div>
+      <label class="label">Имя</label>
+      <input class="input" name="full_name" required />
+    </div>
+    <div>
+      <label class="label">Email</label>
+      <input class="input" type="email" name="email" required />
+    </div>
+    <div>
+      <label class="label">Пароль</label>
+      <input class="input" type="password" name="password" minlength="8" required />
+    </div>
+    <button class="btn w-full" type="submit">Создать аккаунт</button>
+    <p class="text-sm text-muted">Уже есть аккаунт? <a href="{{ url_for('web.login') }}">Войти</a></p>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Заказ принят — {{ store_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl px-5 py-24 text-center md:px-8">
+  <p class="text-[11px] uppercase tracking-[0.2em] text-muted">Оплата</p>
+  <h1 class="mt-3 font-display text-4xl">Заказ принят</h1>
+  {% if order %}
+    <p class="mt-4 text-sm text-muted">Номер: {{ order.public_id }} · статус: {{ order.status }}</p>
+  {% endif %}
+  <p class="mx-auto mt-4 max-w-md text-sm text-muted">После подтверждения ЮKassa (или mock) статус станет paid.</p>
+  <div class="mt-10 flex justify-center gap-4">
+    <a class="btn" href="{{ url_for('web.account') }}">Мои заказы</a>
+    <a class="btn-outline" href="{{ url_for('web.catalog') }}">В каталог</a>
+  </div>
+</div>
+{% endblock %}

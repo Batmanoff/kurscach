@@ -7,9 +7,13 @@ from app.routes.favorites import bp as favorites_bp
 from app.routes.orders import bp as orders_bp
 from app.routes.payments import bp as payments_bp
 from app.routes.products import bp as products_bp
+from app.routes.web import bp as web_bp
 
 
 def register_blueprints(app: Flask) -> None:
+    # Student UI (Jinja) — main path, no Node
+    app.register_blueprint(web_bp)
+    # JSON API kept for optional Next frontend / integrations
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(products_bp, url_prefix="/api/products")
     app.register_blueprint(cart_bp, url_prefix="/api/cart")

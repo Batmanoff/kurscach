@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — {{ store_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto grid max-w-6xl gap-10 px-5 py-12 lg:grid-cols-2 md:px-8">
+  <div class="card-img">
+    {% if product.images %}
+      <img src="{{ product.images[0] }}" alt="{{ product.name }}" />
+    {% endif %}
+  </div>
+  <div>
+    <p class="text-[11px] uppercase tracking-[0.2em] text-muted">{{ product.brand }}</p>
+    <h1 class="mt-3 font-display text-4xl">{{ product.name }}</h1>
+    <p class="mt-4 text-lg">{{ fmt_rub(product.base_price_rub) }}</p>
+    <p class="mt-6 max-w-lg text-sm leading-relaxed text-muted">{{ product.description }}</p>
+    {% if product.composition %}
+      <p class="mt-4 text-xs uppercase tracking-[0.14em] text-muted">Состав: {{ product.composition }}</p>
+    {% endif %}
+
+    <div class="mt-8">
+      <p class="label">Цвет</p>
+      <div class="flex flex-wrap gap-2">
+        {% for c in colors %}
+          <a class="border px-3 py-2 text-xs {% if c==selected_color %}border-ink{% else %}border-ink/20{% endif %}"
+             href="{{ url_for('web.product_detail', slug=product.slug, color=c) }}">{{ c }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <form method="post" action="{{ url_for('web.cart_add') }}" class="mt-6 space-y-6">
+      <div>
+        <p class="label">Размер</p>
+        <div class="flex flex-wrap gap-2">
+          {% for v in sizes %}
+            <label class="cursor-pointer border px-3 py-2 text-xs has-[:checked]:border-ink has-[:checked]:bg-ink has-[:checked]:text-paper border-ink/20">
+              <input type="radio" name="variant_id" value="{{ v.id }}" class="sr-only" {% if loop.first and v.stock > 0 %}checked{% endif %} {% if v.stock < 1 %}disabled{% endif %} />
+              {{ v.size }}{% if v.stock < 1 %} · нет{% endif %}
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+      <input type="hidden" name="quantity" value="1" />
+      <div class="flex flex-wrap gap-3">
+        <button class="btn" type="submit">В корзину</button>
+        {% if current_user %}
+          <button class="btn-outline" formaction="{{ url_for('web.favorite_add', product_id=product.id) }}" formmethod="post">В избранное</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

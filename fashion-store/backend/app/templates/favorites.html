@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Избранное — {{ store_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl px-5 py-12 md:px-8">
+  <h1 class="font-display text-4xl">Избранное</h1>
+  <div class="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 md:grid-cols-4">
+    {% for fav in favorites %}
+      {% set p = fav.product %}
+      {% if p %}{% include "partials/product_card.html" %}{% endif %}
+    {% else %}
+      <p class="col-span-full text-muted">Пока пусто</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

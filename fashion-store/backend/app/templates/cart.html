@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Корзина — {{ store_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl px-5 py-12 md:px-8">
+  <h1 class="font-display text-4xl">Корзина</h1>
+  {% if not cart['items'] %}
+    <p class="mt-8 text-muted">Пусто. <a href="{{ url_for('web.catalog') }}">Перейти в каталог</a></p>
+  {% else %}
+    <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
+      <div class="space-y-6">
+        {% for item in cart['items'] %}
+          <div class="flex gap-5 border-b border-ink/10 pb-6">
+            {% if item.product and item.product.images %}
+              <img src="{{ item.product.images[0] }}" alt="" class="h-28 w-24 object-cover bg-mist" />
+            {% endif %}
+            <div class="flex-1">
+              <p class="text-[10px] uppercase tracking-[0.18em] text-muted">{{ item.product.brand if item.product else '' }}</p>
+              <p class="mt-1 text-sm">{{ item.product.name if item.product else '' }}</p>
+              <p class="mt-1 text-xs text-muted">{{ item.variant.color }} · {{ item.variant.size }}</p>
+              <div class="mt-3 flex items-center gap-2">
+                <form method="post" action="{{ url_for('web.cart_update', item_id=item.id) }}" class="flex items-center gap-2">
+                  <input type="hidden" name="quantity" value="{{ item.quantity - 1 }}" />
+                  <button class="btn-outline !px-3 !py-1" type="submit">−</button>
+                </form>
+                <span class="text-sm">{{ item.quantity }}</span>
+                <form method="post" action="{{ url_for('web.cart_update', item_id=item.id) }}">
+                  <input type="hidden" name="quantity" value="{{ item.quantity + 1 }}" />
+                  <button class="btn-outline !px-3 !py-1" type="submit">+</button>
+                </form>
+                <form method="post" action="{{ url_for('web.cart_remove', item_id=item.id) }}">
+                  <button class="ml-3 text-xs text-muted" type="submit">Удалить</button>
+                </form>
+              </div>
+            </div>
+            <p class="text-sm">{{ fmt_rub(item.line_total_rub) }}</p>
+          </div>
+        {% endfor %}
+      </div>
+      <aside class="h-fit border border-ink/10 bg-white/50 p-6">
+        <p class="text-[11px] uppercase tracking-[0.18em] text-muted">Итого</p>
+        <p class="mt-3 font-display text-3xl">{{ fmt_rub(cart['subtotal_rub']) }}</p>
+        <a class="btn mt-6 w-full" href="{{ url_for('web.checkout') }}">Оформить</a>
+      </aside>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

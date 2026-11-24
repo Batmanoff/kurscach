@@ -1,9 +1,9 @@
-﻿# Stop ATELIER backend/frontend (ports 5000 / 3000)
+﻿# Stop ATELIER Flask (port 5000)
 $ErrorActionPreference = "SilentlyContinue"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host ""
-Write-Host "Останавливаю ATELIER (порты 5000 и 3000)..." -ForegroundColor Cyan
+Write-Host "Останавливаю ATELIER (порт 5000)..." -ForegroundColor Cyan
 
 function Stop-Port([int]$Port) {
     $conns = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
@@ -18,12 +18,7 @@ function Stop-Port([int]$Port) {
 }
 
 Stop-Port 5000
-Stop-Port 3000
-
-# Also stop leftover node/python titled windows if still listening
 Start-Sleep -Seconds 1
 Stop-Port 5000
-Stop-Port 3000
-
 Write-Host "Готово." -ForegroundColor Green
 Write-Host ""

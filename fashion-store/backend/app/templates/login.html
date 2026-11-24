@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Вход — {{ store_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto flex max-w-6xl justify-center px-5 py-20 md:px-8">
+  <form method="post" class="w-full max-w-md space-y-5">
+    <h1 class="font-display text-4xl">Вход</h1>
+    <p class="text-sm text-muted">Демо: demo@atelier.dev / Demo123!</p>
+    <div>
+      <label class="label">Email</label>
+      <input class="input" type="email" name="email" value="{{ email or '' }}" required />
+    </div>
+    <div>
+      <label class="label">Пароль</label>
+      <input class="input" type="password" name="password" value="Demo123!" required />
+    </div>
+    <button class="btn w-full" type="submit">Войти</button>
+    <p class="text-sm text-muted">Нет аккаунта? <a href="{{ url_for('web.register') }}">Регистрация</a></p>
+  </form>
+</div>
+{% endblock %}

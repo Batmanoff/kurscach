@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Оформление — {{ store_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl px-5 py-12 md:px-8">
+  <h1 class="font-display text-4xl">Оформление</h1>
+  <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_280px]">
+    <form method="post" class="max-w-xl space-y-4">
+      <div><label class="label">Получатель</label><input class="input" name="shipping_name" value="{{ form.shipping_name }}" required /></div>
+      <div><label class="label">Телефон</label><input class="input" name="shipping_phone" value="{{ form.shipping_phone }}" required /></div>
+      <div><label class="label">Город</label><input class="input" name="shipping_city" value="{{ form.shipping_city }}" required /></div>
+      <div><label class="label">Адрес</label><input class="input" name="shipping_address" value="{{ form.shipping_address }}" required /></div>
+      <div><label class="label">Индекс</label><input class="input" name="shipping_postal" value="{{ form.shipping_postal }}" /></div>
+      <div><label class="label">Промокод</label><input class="input" name="coupon_code" value="{{ form.coupon_code }}" /></div>
+      <button class="btn mt-2" type="submit">Создать заказ и оплатить СБП</button>
+    </form>
+    <aside class="h-fit border border-ink/10 bg-white/50 p-5 text-sm">
+      <p class="text-[11px] uppercase tracking-[0.16em] text-muted">Корзина</p>
+      <p class="mt-3 font-display text-2xl">{{ fmt_rub(cart['subtotal_rub']) }}</p>
+      <ul class="mt-4 space-y-2 text-xs text-muted">
+        {% for item in cart['items'] %}
+          <li>{{ item.product.name if item.product else 'Товар' }} × {{ item.quantity }}</li>
+        {% endfor %}
+      </ul>
+    </aside>
+  </div>
+</div>
+{% endblock %}

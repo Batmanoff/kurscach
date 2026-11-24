@@ -1,17 +1,15 @@
 # ATELIER (kurscach)
 
-Премиальный fashion-магазин: Flask + Next.js + СБП (ЮKassa / mock).
+Fashion-магазин на **Python / Flask + Jinja2** (SQLite). Без Node для основного демо.
 
 ## Как запустить (Windows)
 
-1. Установите **Python 3.12+** и **Node.js 20 LTS** (оба с галочкой *Add to PATH*).
-2. Откройте папку проекта и **дважды нажмите `start.bat`**.
-3. Подождите окна Backend и Frontend, откройте http://127.0.0.1:3000  
+1. Установите **Python 3.12+** (галочка *Add to PATH*).
+2. Дважды нажмите **`start.bat`**.
+3. Откройте http://127.0.0.1:5000  
 4. Остановка: **`stop.bat`**.
 
-По умолчанию — **SQLite**, PostgreSQL/Docker не нужны.
-
-## Демо-логины
+## Демо
 
 | | Email | Пароль |
 |---|---|---|
@@ -20,6 +18,4 @@
 
 Промокод: `WELCOME10`
 
----
-
-Подробности (ЮKassa, Docker, API): [docs/SETUP.md](docs/SETUP.md)
+Хостинг (Timeweb / Beget / Railway / Render / VPS): [docs/HOSTING.md](docs/HOSTING.md)

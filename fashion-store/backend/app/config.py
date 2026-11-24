@@ -33,13 +33,15 @@ class Config:
         if o.strip()
     ]
 
-    BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5000")
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:5000")
+    # Same origin as Flask Jinja UI by default (Next.js is optional).
+    FRONTEND_URL = os.getenv("FRONTEND_URL", BACKEND_URL)
+    STORE_NAME = os.getenv("STORE_NAME", "ATELIER")
 
     YOOKASSA_SHOP_ID = os.getenv("YOOKASSA_SHOP_ID", "").strip()
     YOOKASSA_SECRET_KEY = os.getenv("YOOKASSA_SECRET_KEY", "").strip()
     YOOKASSA_RETURN_URL = os.getenv(
-        "YOOKASSA_RETURN_URL", "http://localhost:3000/checkout/success"
+        "YOOKASSA_RETURN_URL", f"{FRONTEND_URL.rstrip('/')}/checkout/success"
     )
     YOOKASSA_WEBHOOK_SECRET = os.getenv("YOOKASSA_WEBHOOK_SECRET", "").strip()
 

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Кабинет — {{ store_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl px-5 py-12 md:px-8">
+  <h1 class="font-display text-4xl">Кабинет</h1>
+  <p class="mt-3 text-sm text-muted">{{ current_user.full_name }} · {{ current_user.email }} · {{ current_user.role }}</p>
+  <h2 class="mt-12 text-[11px] uppercase tracking-[0.2em]">Заказы</h2>
+  <div class="mt-6 space-y-4">
+    {% for o in orders %}
+      <div class="border border-ink/10 bg-white/40 p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm">{{ o.public_id[:8] }}</p>
+          <p class="text-xs uppercase tracking-[0.14em] text-muted">{{ o.status }}</p>
+        </div>
+        <p class="mt-2 text-sm">{{ fmt_rub(o.total_rub) }}</p>
+        <ul class="mt-3 space-y-1 text-xs text-muted">
+          {% for i in o.items %}
+            <li>{{ i.product_name }} · {{ i.size }}/{{ i.color }} × {{ i.quantity }}</li>
+          {% endfor %}
+        </ul>
+        {% if o.status == 'pending_payment' %}
+          <a class="mt-3 inline-block text-xs uppercase tracking-[0.14em]" href="{{ url_for('web.checkout_pay', public_id=o.public_id) }}">Оплатить</a>
+        {% endif %}
+      </div>
+    {% else %}
+      <p class="text-muted">Заказов пока нет</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
