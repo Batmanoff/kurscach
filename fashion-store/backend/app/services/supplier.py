@@ -387,4 +387,30 @@ class DemoSupplierAdapter:
                 tags=["crew", "new"],
                 featured=True,
             ),
+            SupplierProduct(
+                sku="SWG-OW-LACE-17",
+                name="Off-White Arrow Shoelaces",
+                brand="Off-White",
+                category_slug="accessories",
+                price_rub=4990,
+                compare_at=5990,
+                description="Плоские шнурки с фирменной стрелкой. Подходят для большинства кроссовок, длина 140 см.",
+                composition="100% полиэстер",
+                colors=[
+                    ColorOption(
+                        "White",
+                        "#F5F5F5",
+                        "/static/img/products/off-white-laces-white.jpg",
+                    ),
+                    ColorOption(
+                        "Black",
+                        "#111111",
+                        "/static/img/products/off-white-laces-black.jpg",
+                    ),
+                ],
+                sizes=["140cm"],
+                images=["/static/img/products/off-white-laces-white.jpg"],
+                tags=["laces", "accessories", "easter_snurki"],
+                featured=True,
+            ),
         ]

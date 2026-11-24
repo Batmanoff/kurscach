@@ -1,4 +1,18 @@
-<article class="group" data-product-card>
+{% set is_easter = p.tags and ('easter_snurki' in p.tags) %}
+<article class="group {% if is_easter %}product-card-easter{% endif %}" data-product-card {% if is_easter %}data-easter-snurki{% endif %}>
+  {% if is_easter %}
+  <div class="easter-stage">
+    <img
+      class="easter-figure"
+      src="{{ url_for('static', filename='img/easter/pasha-technik.png') }}"
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      width="220"
+      height="295"
+    />
+    <div class="easter-front">
+  {% endif %}
   <a href="{{ url_for('web.product_detail', slug=p.slug) }}" class="block">
     <div class="card-img">
       {% set img = p.primary_image() %}
@@ -51,5 +65,10 @@
       });
     })();
   </script>
+  {% endif %}
+  {% if is_easter %}
+    </div>
+    <audio data-easter-audio preload="none" src="{{ url_for('static', filename='audio/off-white-snurki.mp3') }}"></audio>
+  </div>
   {% endif %}
 </article>
